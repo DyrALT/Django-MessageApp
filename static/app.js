@@ -6,7 +6,16 @@ const chatSocket = new WebSocket(
 
 chatSocket.onmessage=function (e) {
     const data = JSON.parse(e.data);
-
+    var message = `<div class="row message-body">
+    <div class="col-sm-12 message-main-sender">
+       <div class="sender">
+        <div class="message-text">${data.message}</div>
+        <span class="message-time pull-right"> bugün </span>
+      </div> 
+    </div>
+  </div>
+</div>`
+    conversation.innerHTML += message;
 }
 
 chatSocket.onclose=function(e){

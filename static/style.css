@@ -10,10 +10,8 @@ html,
     box-sizing: border-box;
   }
 
-  body {
-    background: url("https://www.bootdey.com/img/bgy.png") no-repeat fixed
-      center;
-    background-size: cover;
+  #yazma{
+    background-color: rgb(229, 226, 226);
   }
 
   .fa-2x {
@@ -140,6 +138,8 @@ html,
     margin: 0 !important;
     height: 60px;
     width: 100%;
+    border:none;
+    
   }
 
   .searchBox-inner {
@@ -149,9 +149,7 @@ html,
     background-color: #fbfbfb;
   }
 
-  /*#searchBox-inner input {
-box-shadow: none;
-}*/
+
 
   .searchBox-inner input:focus {
     outline: none;
@@ -313,7 +311,6 @@ box-shadow: none;
   .message {
     padding: 0 !important;
     margin: 0 !important;
-    background: url("w.jpg") no-repeat fixed center;
     background-size: cover;
     overflow-y: auto;
     border: 1px solid #f7f7f7;

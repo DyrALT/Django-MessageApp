@@ -1,5 +1,20 @@
-from django.shortcuts import render
+from typing import SupportsIndex
+from django.shortcuts import redirect, render
+from django.contrib.auth import authenticate
+from django.contrib import messages
+from django.contrib.auth import logout as logout_, login as login_
+from django.contrib.auth.decorators import login_required
+from django.core.mail import EmailMessage, message,send_mail
+from django.contrib.auth.models import User
+from django.views.generic import View
+from django.urls import reverse
+from django.conf import settings
+from django.utils.encoding import force_bytes,force_text,DjangoUnicodeDecodeError
+from django.utils.http import urlsafe_base64_encode,urlsafe_base64_decode
+from django.contrib.sites.shortcuts import get_current_site
+from .utils import token_generator
 
+@login_required(login_url="login")
 def index(request):
     return render(request, 'index.html')
 
@@ -7,3 +22,76 @@ def room(request, room_name):
     return render(request, 'room_v2.html', {
         'room_name': room_name
     })
+
+def login(request):
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        user = authenticate(username=username,password=password)
+        if user is not None:
+            login_(request,user)
+            return redirect("index")
+        messages.info(request,"Kullanıcı Adı Veya Şifre Hatalı")
+        return render(request,"login.html")
+    return render(request,"login.html")
+
+def logout(request):
+    logout_(request)
+    return redirect("login")
+    
+def register(request):
+    if request.method == "POST":
+    
+        firstname = request.POST.get("firstname")
+        lastname = request.POST.get("lastname")
+        e_mail = request.POST.get("email")
+        password = request.POST.get("password")
+        confirm = request.POST.get("confirm")
+        username = f"{firstname} {lastname}"
+        if password != confirm:
+            messages.info(request,"Şifreler Eşleşmiyor")
+            return redirect("register")
+        if not User.objects.filter(username=username).exists() and not User.objects.filter(email=e_mail).exists():
+            if len(password) < 8:
+                messages.info(request,"Şifre En az 8 karakter olmalıdır")
+                return redirect("register")
+            user = User.objects.create_user(username=username,email=e_mail,first_name=firstname,last_name=lastname)
+            user.set_password(password)
+            user.is_active = False
+            user.save()
+            uidb64 =  urlsafe_base64_encode(force_bytes(user.pk))
+            domain=get_current_site(request).domain
+            link=reverse('confirm',kwargs={'uidb64':uidb64,"token":token_generator.make_token(user)})
+            activate_url="http://"+domain+link
+            subject = "E-postanızı Doğrulayın"
+            content = f"Sayın {username} doğrulama linkiniz: {activate_url} \nLütfen kimseyle paylaşmayınız.\n\nVatzap"
+            email = send_mail(subject=subject,message=content,recipient_list=[e_mail],from_email="django.mail.backend@gmail.com",fail_silently=False)
+            # login_(request,user)
+            context = {
+                "e_mail" : e_mail,
+
+            }
+            messages.success(request,"Başarıyla Kayıt Oldunuz")
+            return render(request,"email_confirm.html",context)
+        messages.info(request,"Kullanıcı Zaten Mevcut")
+        return redirect("register")
+        
+    return render(request,"register.html")
+
+class VerifacationsView(View):
+    def get(self,request,uidb64,token):
+        try:
+            id=force_text(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=id)
+            if user.is_active:
+                login_(request,user)
+                return redirect("index")
+            user.is_active = True
+            user.save()
+            login_(request,user)
+            return redirect("index")
+            
+        except: 
+            messages.info(request,"hata")
+            return redirect("login")
+        
