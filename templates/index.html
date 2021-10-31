@@ -33,9 +33,7 @@
             <div class="row heading">
               
                 <div class="col-xs-6 pull-left">
-                    {% if request.user.is_authenticated %}
-                    <h5>{{request.user.first_name }} {{request.user.last_name}}</h5>
-                    {% endif %}
+                    <h4 >{{request.user.first_name }} {{request.user.last_name}}</h4>
                 </div>
                
               
@@ -72,25 +70,22 @@
             </div>
 
             <div class="row sideBar">
-              <div class="row sideBar-body">
-                <div class="col-sm-3 col-xs-3 sideBar-avatar">
-                  <div class="avatar-icon">
-                    <img
-                      src=""
-                    />
-                  </div>
-                </div>
-                <div class="col-sm-9 col-xs-9 sideBar-main">
-                  <div class="row">
-                    <div class="col-sm-8 col-xs-8 sideBar-name">
-                      <span class="name-meta">John Doe </span>
-                    </div>
-                    <div class="col-sm-4 col-xs-4 pull-right sideBar-time">
-                      <span class="time-meta pull-right">18:18 </span>
+              {% for user in users %}
+              <a href="{{user.id}}">
+                <div class="row sideBar-body">
+                  <div class="col-sm-9 col-xs-9 sideBar-main">
+                    <div class="row">
+                      <div class="col-sm-8 col-xs-8 sideBar-name">
+                        <span class="name-meta">{{user.username}}</span>
+                      </div>
+                      <div class="col-sm-4 col-xs-4 pull-right sideBar-time">
+                        <span class="time-meta pull-right">18:18 </span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              </a>
+              {% endfor %}
             </div>
           </div>
 

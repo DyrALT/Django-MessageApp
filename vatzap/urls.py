@@ -16,6 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path,include
 from chat.views import VerifacationsView, login,index,logout,register
+from chat.views import index as ans
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('chat/', include("chat.urls")),
@@ -23,5 +24,4 @@ urlpatterns = [
     path("logout/",logout,name="logout"),
     path("register/",register,name="register"),
     path("confirm/<uidb64>/<token>",VerifacationsView.as_view(),name="confirm"),
-    path("",index,name="index"),
 ]

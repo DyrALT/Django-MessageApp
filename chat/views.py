@@ -13,21 +13,55 @@ from django.utils.encoding import force_bytes,force_text,DjangoUnicodeDecodeErro
 from django.utils.http import urlsafe_base64_encode,urlsafe_base64_decode
 from django.contrib.sites.shortcuts import get_current_site
 from .utils import token_generator
+from .models import Message, Room
+from django.utils import timezone
 
 @login_required(login_url="login")
 def index(request):
-    return render(request, 'index.html')
-
+    users=User.objects.all().exclude(username=request.user.username)
+    User.objects.filter(id=request.user.id).update(last_login=timezone.now())
+    return render(request, 'index.html',{"users":users})
+@login_required(login_url="login")
 def room(request, room_name):
-    return render(request, 'room_v2.html', {
-        'room_name': room_name
-    })
+    rooom = Room.objects.get(id=room_name)
+    User.objects.filter(id=request.user.id).update(last_login=timezone.now())
+    if rooom.first_user == request.user or rooom.second_user == request.user:
+        users=User.objects.all().exclude(username=request.user.username)
+        room=Room.objects.get(id=room_name)
+        messages=Message.objects.filter(room=room)
+        return render(request, 'room_v2.html', {
+            'room_name': room_name,
+            "users":users,
+            "room":room,
+            "messages":messages
+        })
+    else:
+        return redirect("index")
+@login_required(login_url="login")
+
+def start_chat(request,id):
+    second_user=User.objects.get(id=id)
+    User.objects.filter(id=request.user.id).update(last_login=timezone.now())
+    try:
+        room=Room.objects.get(first_user=request.user,second_user=second_user)
+        return redirect("room",room.id)
+    except Room.DoesNotExist:
+        try:
+            room=Room.objects.get(second_user=request.user,first_user=second_user)
+            return redirect("room",room.id)
+        except Room.DoesNotExist:
+            room=Room.objects.create(first_user=request.user,second_user=second_user)
+            return redirect("room",room.id)
 
 def login(request):
     if request.method == "POST":
-        username = request.POST.get("username")
+        email = request.POST.get("email")
         password = request.POST.get("password")
-        user = authenticate(username=username,password=password)
+        user = authenticate(email=email,password=password)
+        if user is not None:
+            login_(request,user)
+            return redirect("index")
+        user = authenticate(username=email,password=password)
         if user is not None:
             login_(request,user)
             return redirect("index")
@@ -36,6 +70,7 @@ def login(request):
     return render(request,"login.html")
 
 def logout(request):
+    User.objects.filter(id=request.user.id).update(last_login=timezone.now())
     logout_(request)
     return redirect("login")
     

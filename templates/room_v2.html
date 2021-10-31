@@ -32,9 +32,8 @@
           <div class="side-one">
             <div class="row heading">
               <div class="col-xs-6 pull-left">
-                    {% if request.user.is_authenticated %}
-                    <h5>{{request.user.first_name }} {{request.user.last_name}}</h5>
-                    {% endif %}
+                    <h4>{{request.user.first_name }} {{request.user.last_name}}</h4>
+                    
                 </div>
               <div class="col-sm-1 col-xs-1 heading-dot pull-right">
                 <i
@@ -68,25 +67,22 @@
             </div>
 
             <div class="row sideBar">
-              <div class="row sideBar-body">
-                <div class="col-sm-3 col-xs-3 sideBar-avatar">
-                  <div class="avatar-icon">
-                    <img
-                      src=""
-                    />
-                  </div>
-                </div>
-                <div class="col-sm-9 col-xs-9 sideBar-main">
-                  <div class="row">
-                    <div class="col-sm-8 col-xs-8 sideBar-name">
-                      <span class="name-meta">John Doe </span>
-                    </div>
-                    <div class="col-sm-4 col-xs-4 pull-right sideBar-time">
-                      <span class="time-meta pull-right">18:18 </span>
+              {% for user in users %}
+              <a href="//127.0.0.1:8000/chat/{{user.id}}">
+                <div class="row sideBar-body">
+                  <div class="col-sm-9 col-xs-9 sideBar-main">
+                    <div class="row">
+                      <div class="col-sm-8 col-xs-8 sideBar-name">
+                        <span class="name-meta">{{user.username}}</span>
+                      </div>
+                      <div class="col-lg-4 col-xl-4 pull-right sideBar-time row">
+                        <span class="time-meta pull-right">Son aktif: {{user.last_login|time:'H:i'}}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              </a>
+              {% endfor %}
             </div>
           </div>
 
@@ -123,13 +119,16 @@
 
         <div class="col-sm-8 conversation">
           <div class="row heading">
-            <div class="col-sm-2 col-md-1 col-xs-3 heading-avatar">
-              <div class="heading-avatar-icon">
-                <img src="" />
-              </div>
-            </div>
+            
             <div class="col-sm-8 col-xs-7 heading-name">
-              <a class="heading-name-meta">John Doe </a>
+              <p class="heading-name-meta">
+              {% if room.first_user == request.user %}
+              <h4>{{room.second_user}}</h4>
+              {% else %}
+              <h4>{{room.first_user}}</h4>
+
+              {% endif %}
+              </p>
               <span class="heading-online">Online</span>
             </div>
             <div class="col-sm-1 col-xs-1 heading-dot pull-right">
@@ -152,18 +151,45 @@
                   <span class="message-time pull-right"> Sun </span>
                 </div>
               </div>
-            </div> {% endcomment %}
+            </div> 
 
             <div class="row message-body">
               <div class="col-sm-12 message-main-sender">
-                {% comment %} <div class="sender">
+                 <div class="sender">
                   <div class="message-text">I am doing nothing man!</div>
                   <span class="message-time pull-right"> Sun </span>
-                </div> {% endcomment %}
+                </div>
+              </div>
+            </div> {% endcomment %}
+            {% for message in messages %}
+            
+            {% if message.user == request.user %}
+
+              <div class="row message-body">
+              <div class="col-sm-12 message-main-sender">
+                 <div class="sender">
+                  <div class="message-text">{{message.content}}</div>
+                  <span class="message-time pull-right">{{message.created_date.hour}}:{{message.created_date.minute}}</span>
+                </div>
               </div>
             </div>
-          </div>
 
+            {% else %}
+
+            <div class="row message-body">
+              <div class="col-sm-12 message-main-receiver">
+                <div class="receiver">
+                  <div class="message-text">{{message.content}}</div>
+                  <span class="message-time pull-right">{{message.created_date.hour}}:{{message.created_date.minute}}</span>
+                </div>
+              </div>
+            </div> 
+
+            {% endif %}
+
+            {% endfor %}
+
+          </div>
           <div class="row reply" id="yazma">
             <div class="col-sm-1 col-xs-1 reply-emojis">
               <i class="fa fa-smile-o fa-2x"></i>
@@ -182,7 +208,8 @@
       </div>
     </div>
     {{ room_name|json_script:"room-name" }}
-
+    {{ request.user.username|json_script:"user" }}
+ 
     <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="http://netdna.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script type="text/javascript">
