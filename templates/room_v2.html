@@ -143,24 +143,6 @@
             <div class="row message-previous">
               
             </div>
-
-            {% comment %} <div class="row message-body">
-              <div class="col-sm-12 message-main-receiver">
-                <div class="receiver">
-                  <div class="message-text">Hi, what are you doing?!</div>
-                  <span class="message-time pull-right"> Sun </span>
-                </div>
-              </div>
-            </div> 
-
-            <div class="row message-body">
-              <div class="col-sm-12 message-main-sender">
-                 <div class="sender">
-                  <div class="message-text">I am doing nothing man!</div>
-                  <span class="message-time pull-right"> Sun </span>
-                </div>
-              </div>
-            </div> {% endcomment %}
             {% for message in messages %}
             
             {% if message.user == request.user %}
@@ -198,7 +180,8 @@
               <input class="form-control" id="mytext"></input>
             </div>
             <div class="col-sm-1 col-xs-1 reply-recording">
-              <i class="fa fa-file fa-2x" aria-hidden="true"></i>
+                <input type="file" class="hidden" id="hiddeninput">
+              <i class="fa fa-file fa-2x" id="file" onclick="document.getElementById('hiddeninput').click()" aria-hidden="true"></i>
             </div>
             <div class="col-sm-1 col-xs-1 reply-send">
               <i class="fa fa-send fa-2x" aria-hidden="true" id="sendmsg"></i>

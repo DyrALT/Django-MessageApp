@@ -7,6 +7,7 @@ const chatSocket = new WebSocket(
 
 chatSocket.onmessage = function (e) {
   const data = JSON.parse(e.data);
+  console.log(data.type);
   if (user === data.user) {
     var message = `<div class="row message-body">
       <div class="col-sm-12 message-main-sender">
@@ -48,8 +49,29 @@ sendButton.click = function (e) {
   const messsage = inputField.value;
   chatSocket.send(
     JSON.stringify({
-      message: messsage,
+      "message": messsage,
+      "typess":"text"
     })
   );
   inputField.value = "";
 };
+
+
+document.getElementById("hiddeninput").addEventListener("change",handleFileSelect,false);
+
+function getBase64(file) {
+  var reader = new FileReader()
+  reader.readAsDataURL(file)
+  reader.onload=function(){
+    chatSocket.send(JSON.stringify({
+      "message":reader.result,
+      "typess" : "image"
+    }))
+  }
+}
+
+function handleFileSelect() {
+  var file=document.getElementById('hiddeninput').files[0];
+  getBase64(file);
+  console.log(file);
+}

@@ -15,3 +15,4 @@ class Message(models.Model):
     room=models.ForeignKey(Room, verbose_name="Oda", on_delete=models.CASCADE)
     content=models.TextField(verbose_name="Mesaj içeriği")
     created_date = models.DateTimeField(verbose_name="Saat", auto_now_add=True)
+    typess=models.CharField(max_length=50,null=True,blank=True)

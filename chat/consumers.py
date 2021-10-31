@@ -33,9 +33,10 @@ class ChatConsumer(WebsocketConsumer):
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
         user = self.scope["user"]
+        typess=text_data_json['typess']
         user.last_login = timezone.now()
-        m  = Message.objects.create(content=message,room_id=self.room_name,user=user)
-        print(f"********-- {user} --******** {message}")
+        m  = Message.objects.create(content=message,room_id=self.room_name,user=user,typess=typess)
+        print(f"********-- {user} --***{typess}***** {message}")
         # Send message to room group
         async_to_sync(self.channel_layer.group_send)(
             self.room_group_name,
@@ -43,7 +44,8 @@ class ChatConsumer(WebsocketConsumer):
                 'type': 'chat_message',
                 'message': message,
                 "user":user.username,
-                "created_date":f"{m.created_date.hour}:{m.created_date.minute}"
+                "created_date":f"{m.created_date.hour}:{m.created_date.minute}",
+                "typess" : typess
             }
         )
 
@@ -51,11 +53,12 @@ class ChatConsumer(WebsocketConsumer):
     def chat_message(self, event):
         message = event['message']
         user = event['user']
-        user.last_login = timezone.now()
+        typess = event['typess']
         created_date = event['created_date']
         # Send message to WebSocket
         self.send(text_data=json.dumps({
             'message': message,
             "user": user,
-            "created_date" : created_date
+            "created_date" : created_date,
+            "typess" : typess
         }))
