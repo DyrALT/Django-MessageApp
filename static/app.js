@@ -7,12 +7,18 @@ const chatSocket = new WebSocket(
 
 chatSocket.onmessage = function (e) {
   const data = JSON.parse(e.data);
-  console.log(data.type);
+  const message_type = data.typess;
+  if (message_type==="text") {
+    var message = data.message;
+  }else if(message_type ==="image"){
+    var message=`<img id="myImg" width="250" height="250" src="${data.message}">`
+  }
+  // console.log(data.type);
   if (user === data.user) {
     var message = `<div class="row message-body">
       <div class="col-sm-12 message-main-sender">
          <div class="sender">
-          <div class="message-text">${data.message}</div>
+          <div class="message-text">${message}</div>
           <span class="message-time pull-right">${data.created_date}</span>
         </div> 
       </div>
@@ -22,7 +28,7 @@ chatSocket.onmessage = function (e) {
     var message = `<div class="row message-body">
       <div class="col-sm-12 message-main-receiver">
          <div class="receiver">
-          <div class="message-text">${data.message}</div>
+          <div class="message-text">${message}</div>
           <span class="message-time pull-right">${data.created_date}</span>
         </div> 
       </div>
@@ -53,25 +59,29 @@ sendButton.click = function (e) {
       "typess":"text"
     })
   );
+  console.log(messsage.type);
   inputField.value = "";
 };
 
 
 document.getElementById("hiddeninput").addEventListener("change",handleFileSelect,false);
 
-function getBase64(file) {
+function getBase64(file,fileType) {
   var reader = new FileReader()
+  var type=fileType.split("/")[0]
   reader.readAsDataURL(file)
+  console.log(type);
   reader.onload=function(){
     chatSocket.send(JSON.stringify({
       "message":reader.result,
-      "typess" : "image"
+      "typess" : type
     }))
   }
 }
 
 function handleFileSelect() {
   var file=document.getElementById('hiddeninput').files[0];
-  getBase64(file);
+  console.log(file.type);
+  getBase64(file,file.type);
   console.log(file);
 }

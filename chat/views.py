@@ -25,7 +25,7 @@ def index(request):
 def room(request, room_name):
     rooom = Room.objects.get(id=room_name)
     User.objects.filter(id=request.user.id).update(last_login=timezone.now())
-    if rooom.first_user == request.user or rooom.second_user == request.user:
+    if rooom.first_user == request.user or rooom.second_user == request.user:   
         users=User.objects.all().exclude(username=request.user.username)
         room=Room.objects.get(id=room_name)
         messages=Message.objects.filter(room=room)
